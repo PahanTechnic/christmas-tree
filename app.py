@@ -1,11 +1,7 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import time
 import threading
-
-# -------------------------------------------------
-# APP SETUP
-# -------------------------------------------------
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hemesha-love'
@@ -16,33 +12,25 @@ socketio = SocketIO(
     async_mode="eventlet"
 )
 
-# -------------------------------------------------
-# GLOBAL STATE
-# -------------------------------------------------
+# ---------------- STATE ----------------
 
 current_gesture = "NONE"
 current_mode = "TREE"
 
-hand_position = {
-    "x": 0,
-    "y": 0,
-    "detected": False
-}
+hand_position = {"x": 0, "y": 0, "detected": False}
 
 photo_index = 0
 auto_play_active = False
 
 last_mode_change = 0
-MODE_COOLDOWN = 0.5  # seconds
+MODE_COOLDOWN = 0.5
 
-# -------------------------------------------------
-# MODE UPDATE LOGIC
-# -------------------------------------------------
+# ---------------- LOGIC ----------------
 
 def update_mode(gesture):
     global current_mode, auto_play_active, photo_index, last_mode_change
-
     now = time.time()
+
     if now - last_mode_change < MODE_COOLDOWN:
         return
 
@@ -69,28 +57,17 @@ def update_mode(gesture):
 
     last_mode_change = now
 
-# -------------------------------------------------
-# SOCKET.IO EVENTS
-# -------------------------------------------------
+# ---------------- SOCKET EVENTS ----------------
 
 @socketio.on("gesture_input")
-def handle_gesture(data):
-    """
-    Expected data from frontend:
-    {
-        "gesture": "FIST | OPEN | PINCH | PEACE | THUMBS_UP",
-        "hand": { "x": 0.1, "y": -0.3, "detected": true }
-    }
-    """
+def on_gesture(data):
     global current_gesture, hand_position
-
     current_gesture = data.get("gesture", "NONE")
     hand_position = data.get("hand", hand_position)
-
     update_mode(current_gesture)
 
 @socketio.on("connect")
-def handle_connect():
+def on_connect():
     emit("gesture_update", {
         "gesture": current_gesture,
         "mode": current_mode,
@@ -99,11 +76,9 @@ def handle_connect():
         "autoPlay": auto_play_active
     })
 
-# -------------------------------------------------
-# BACKGROUND UPDATE LOOP
-# -------------------------------------------------
+# ---------------- BACKGROUND LOOP ----------------
 
-def background_updates():
+def background_loop():
     global photo_index
     last_auto = time.time()
 
@@ -120,32 +95,23 @@ def background_updates():
             "autoPlay": auto_play_active
         })
 
-        time.sleep(0.033)  # ~30 FPS
+        time.sleep(0.033)
 
-# -------------------------------------------------
-# ROUTES
-# -------------------------------------------------
+# ---------------- ROUTES ----------------
 
 @app.route("/")
 def index():
-    return "🎄 Hemesha Christmas Gesture Backend – Railway Ready"
+    return render_template("index.html")
 
-# -------------------------------------------------
-# MAIN
-# -------------------------------------------------
+# ---------------- MAIN ----------------
 
 if __name__ == "__main__":
     print("=" * 55)
-    print("   HEMESHA CHRISTMAS – RAILWAY BACKEND")
-    print("   Made with ❤️ by Pahan Chethana")
-    print("=" * 55)
-    print(" Backend running successfully ")
+    print(" HEMESHA CHRISTMAS – RAILWAY READY ")
+    print(" Made with ❤️ by Pahan Chethana ")
     print("=" * 55)
 
-    threading.Thread(
-        target=background_updates,
-        daemon=True
-    ).start()
+    threading.Thread(target=background_loop, daemon=True).start()
 
     socketio.run(
         app,

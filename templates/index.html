@@ -49,7 +49,8 @@
         /* Controls */
         .controls {
             position: fixed; top: clamp(8px, 2vw, 15px); right: clamp(8px, 2vw, 15px);
-            display: flex; gap: 8px; z-index: 100;
+            display: flex; gap: 8px; z-index: 100; align-items: center;
+            flex-wrap: wrap; justify-content: flex-end;
         }
         .upload-btn {
             background: rgba(255,105,180,0.2); border: 1px solid rgba(255,105,180,0.5);
@@ -58,6 +59,18 @@
             transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
         .upload-btn:hover { background: #ff69b4; color: #000; }
+        
+        /* New gesture buttons */
+        .gesture-btn {
+            background: rgba(255, 105, 180, 0.3); border: 1px solid rgba(255, 105, 180, 0.7);
+            color: #ff69b4; padding: 8px 15px; font-size: 12px; border-radius: 20px;
+            cursor: pointer; transition: all 0.3s; font-family: 'Poppins', sans-serif;
+            margin: 0 2px; white-space: nowrap;
+        }
+        .gesture-btn:hover {
+            background: #ff69b4; color: #000; transform: scale(1.05);
+        }
+        
         input[type="file"] { display: none; }
 
         /* Webcam */
@@ -170,7 +183,19 @@
             border-radius: 50%; font-size: clamp(14px, 4vw, 18px); cursor: pointer; z-index: 100;
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 768px) {
+            .controls {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
+            }
+            
+            .gesture-btn {
+                padding: 6px 10px;
+                font-size: 10px;
+                margin: 2px;
+            }
+            
             #title h1 { font-size: 16px; }
             #title .name { font-size: 28px; }
             #gesture-guide {
@@ -208,6 +233,11 @@
 
     <div class="controls">
         <label class="upload-btn">📁 Add Photos<input type="file" id="file-input" multiple accept="image/*"></label>
+        <button class="gesture-btn" onclick="triggerGesture('FIST')">✊ Tree</button>
+        <button class="gesture-btn" onclick="triggerGesture('OPEN')">✋ Scatter+Photo</button>
+        <button class="gesture-btn" onclick="triggerGesture('PINCH')">🤏 Next Photo</button>
+        <button class="gesture-btn" onclick="triggerGesture('PEACE')">✌️ Heart+Name</button>
+        <button class="gesture-btn" onclick="triggerGesture('THUMBS_UP')">👍 Auto Play</button>
     </div>
 
     <button id="help-btn" onclick="toggleHelp()">?</button>
@@ -216,7 +246,7 @@
         <h4>✨ GESTURES</h4>
         <div class="g-item"><span class="g-icon">✊</span><span class="g-text">Tree</span></div>
         <div class="g-item"><span class="g-icon">✋</span><span class="g-text">Scatter+Photo</span></div>
-        <div class="g-item"><span class="g-icon">🤏</span><span class="g-text">Next Photo</span></div>
+        <div class="g-item"><span class="g-icon">🤏</span><span class="-g-text">Next Photo</span></div>
         <div class="g-item"><span class="g-icon">✌️</span><span class="g-text">Heart+Name</span></div>
         <div class="g-item"><span class="g-icon">👍</span><span class="g-text">Auto Play</span></div>
     </div>
@@ -285,16 +315,79 @@
         let photoUrls = [...PRESET_IMAGES];
         let cameraReady = false;
 
-        // Camera permission
+        // Camera permission auto request (පිටුව load වන විගස)
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Camera prompt hide කරන්න
+                document.getElementById('camera-prompt').style.display = 'none';
+                
+                // කැමරා permission request
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: "user"
+                    } 
+                });
+                
+                // Webcam feed එකට stream set කරන්න
+                const videoElement = document.getElementById('webcam-feed');
+                videoElement.srcObject = stream;
+                videoElement.play();
+                
+                cameraReady = true;
+                document.getElementById('debug-info').innerText = '📸 Camera ready!';
+                
+                // Permission prompt සම්පූර්ණයෙන් remove කරන්න
+                document.getElementById('camera-prompt').remove();
+                
+            } catch (error) {
+                console.error("Camera error:", error);
+                // Permission denied නම් alternative message
+                document.getElementById('debug-info').innerText = 'Camera not available';
+                document.getElementById('camera-prompt').classList.add('hide');
+            }
+        });
+
+        // Camera permission (manual backup)
         window.requestCamera = async function() {
             try {
                 await navigator.mediaDevices.getUserMedia({ video: true });
                 document.getElementById('camera-prompt').classList.add('hide');
-                document.getElementById('webcam-feed').src = '/video_feed';
+                
+                // Railway/cloud hosting වලට අනුකූල video feed URL
+                const protocol = window.location.protocol;
+                const host = window.location.host;
+                document.getElementById('webcam-feed').src = `${protocol}//${host}/video_feed`;
+                
                 cameraReady = true;
             } catch(e) {
                 alert('Camera permission denied. Gestures will not work.');
                 document.getElementById('camera-prompt').classList.add('hide');
+            }
+        };
+
+        // Button clicks සඳහා gesture trigger function
+        window.triggerGesture = function(gesture) {
+            const data = {
+                gesture: gesture,
+                hand: {
+                    detected: true,
+                    x: Math.random() * 2 - 1, // Random hand position
+                    y: Math.random() * 2 - 1
+                }
+            };
+            
+            // Socket.IO වෙත gesture යවන්න
+            if (typeof socket !== 'undefined') {
+                socket.emit('gesture_input', data);
+            }
+            
+            // Local වශයෙන්ත් update කරන්න
+            if (typeof socket !== 'undefined') {
+                socket.on('gesture_update', (updateData) => {
+                    console.log(`Gesture triggered: ${gesture}`);
+                });
             }
         };
 

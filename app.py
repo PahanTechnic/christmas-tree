@@ -3,7 +3,7 @@ from flask_socketio import SocketIO, emit
 import time
 import threading
 import cv2
-import base64
+import os  # අලුතෙන් import කරන්න
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hemesha-love'

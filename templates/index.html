@@ -60,7 +60,7 @@
         }
         .upload-btn:hover { background: #ff69b4; color: #000; }
         
-        /* New gesture buttons */
+        /* Gesture buttons */
         .gesture-btn {
             background: rgba(255, 105, 180, 0.3); border: 1px solid rgba(255, 105, 180, 0.7);
             color: #ff69b4; padding: 8px 15px; font-size: 12px; border-radius: 20px;
@@ -246,7 +246,7 @@
         <h4>✨ GESTURES</h4>
         <div class="g-item"><span class="g-icon">✊</span><span class="g-text">Tree</span></div>
         <div class="g-item"><span class="g-icon">✋</span><span class="g-text">Scatter+Photo</span></div>
-        <div class="g-item"><span class="g-icon">🤏</span><span class="-g-text">Next Photo</span></div>
+        <div class="g-item"><span class="g-icon">🤏</span><span class="g-text">Next Photo</span></div>
         <div class="g-item"><span class="g-icon">✌️</span><span class="g-text">Heart+Name</span></div>
         <div class="g-item"><span class="g-icon">👍</span><span class="g-text">Auto Play</span></div>
     </div>
@@ -279,6 +279,55 @@
     </div>
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <script>
+        // Gesture button functions
+        window.triggerGesture = function(gesture) {
+            const data = {
+                gesture: gesture,
+                hand: {
+                    detected: true,
+                    x: Math.random() * 2 - 1,
+                    y: Math.random() * 2 - 1
+                }
+            };
+            
+            if (typeof socket !== 'undefined') {
+                socket.emit('gesture_input', data);
+                console.log(`Gesture sent: ${gesture}`);
+            } else {
+                console.log(`Socket not connected. Gesture: ${gesture}`);
+            }
+        };
+
+        // Camera permission
+        window.requestCamera = async function() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('camera-prompt').classList.add('hide');
+                document.getElementById('webcam-feed').src = '/video_feed';
+                console.log('Camera access granted');
+            } catch(e) {
+                alert('Camera permission denied. Use buttons instead!');
+                document.getElementById('camera-prompt').classList.add('hide');
+                document.getElementById('debug-info').innerText = 'Use buttons below ✨';
+            }
+        };
+
+        window.toggleHelp = function() {
+            document.getElementById('mobile-help').classList.toggle('show');
+        };
+
+        // Auto-hide camera prompt if no camera
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (!document.getElementById('camera-prompt').classList.contains('hide')) {
+                    document.getElementById('camera-prompt').classList.add('hide');
+                    document.getElementById('debug-info').innerText = 'Use buttons for gestures';
+                }
+            }, 3000);
+        });
+    </script>
     
     <script type="module">
         import * as THREE from 'three';
@@ -314,86 +363,6 @@
         let previousMode = 'TREE';
         let photoUrls = [...PRESET_IMAGES];
         let cameraReady = false;
-
-        // Camera permission auto request (පිටුව load වන විගස)
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                // Camera prompt hide කරන්න
-                document.getElementById('camera-prompt').style.display = 'none';
-                
-                // කැමරා permission request
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        width: { ideal: 640 },
-                        height: { ideal: 480 },
-                        facingMode: "user"
-                    } 
-                });
-                
-                // Webcam feed එකට stream set කරන්න
-                const videoElement = document.getElementById('webcam-feed');
-                videoElement.srcObject = stream;
-                videoElement.play();
-                
-                cameraReady = true;
-                document.getElementById('debug-info').innerText = '📸 Camera ready!';
-                
-                // Permission prompt සම්පූර්ණයෙන් remove කරන්න
-                document.getElementById('camera-prompt').remove();
-                
-            } catch (error) {
-                console.error("Camera error:", error);
-                // Permission denied නම් alternative message
-                document.getElementById('debug-info').innerText = 'Camera not available';
-                document.getElementById('camera-prompt').classList.add('hide');
-            }
-        });
-
-        // Camera permission (manual backup)
-        window.requestCamera = async function() {
-            try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('camera-prompt').classList.add('hide');
-                
-                // Railway/cloud hosting වලට අනුකූල video feed URL
-                const protocol = window.location.protocol;
-                const host = window.location.host;
-                document.getElementById('webcam-feed').src = `${protocol}//${host}/video_feed`;
-                
-                cameraReady = true;
-            } catch(e) {
-                alert('Camera permission denied. Gestures will not work.');
-                document.getElementById('camera-prompt').classList.add('hide');
-            }
-        };
-
-        // Button clicks සඳහා gesture trigger function
-        window.triggerGesture = function(gesture) {
-            const data = {
-                gesture: gesture,
-                hand: {
-                    detected: true,
-                    x: Math.random() * 2 - 1, // Random hand position
-                    y: Math.random() * 2 - 1
-                }
-            };
-            
-            // Socket.IO වෙත gesture යවන්න
-            if (typeof socket !== 'undefined') {
-                socket.emit('gesture_input', data);
-            }
-            
-            // Local වශයෙන්ත් update කරන්න
-            if (typeof socket !== 'undefined') {
-                socket.on('gesture_update', (updateData) => {
-                    console.log(`Gesture triggered: ${gesture}`);
-                });
-            }
-        };
-
-        window.toggleHelp = function() {
-            document.getElementById('mobile-help').classList.toggle('show');
-        };
 
         // Socket.IO
         const socket = io();

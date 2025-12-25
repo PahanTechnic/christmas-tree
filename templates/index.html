@@ -22,22 +22,6 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loader-text { color: #ff69b4; font-family: 'Great Vibes', cursive; font-size: clamp(28px, 6vw, 40px); margin-top: 20px; }
 
-        /* Camera Permission */
-        #camera-prompt {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1500;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; text-align: center;
-        }
-        #camera-prompt.hide { display: none; }
-        #camera-prompt h2 { color: #ff69b4; font-family: 'Great Vibes', cursive; font-size: clamp(32px, 8vw, 48px); margin-bottom: 20px; }
-        #camera-prompt p { color: #ccc; font-size: clamp(14px, 3vw, 18px); margin-bottom: 30px; max-width: 400px; }
-        #camera-prompt button {
-            background: linear-gradient(135deg, #ff69b4, #ff1493); border: none; color: white;
-            padding: 15px 40px; font-size: clamp(14px, 3vw, 18px); border-radius: 30px; cursor: pointer;
-            font-family: 'Poppins', sans-serif; transition: transform 0.3s, box-shadow 0.3s;
-        }
-        #camera-prompt button:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,105,180,0.5); }
-
         /* Title */
         #title {
             position: fixed; top: clamp(10px, 3vw, 30px); left: 50%; transform: translateX(-50%);
@@ -50,7 +34,7 @@
         .controls {
             position: fixed; top: clamp(8px, 2vw, 15px); right: clamp(8px, 2vw, 15px);
             display: flex; gap: 8px; z-index: 100; align-items: center;
-            flex-wrap: wrap; justify-content: flex-end;
+            flex-wrap: wrap; justify-content: flex-end; max-width: 90vw;
         }
         .upload-btn {
             background: rgba(255,105,180,0.2); border: 1px solid rgba(255,105,180,0.5);
@@ -70,22 +54,11 @@
         .gesture-btn:hover {
             background: #ff69b4; color: #000; transform: scale(1.05);
         }
+        .gesture-btn:active {
+            transform: scale(0.95);
+        }
         
         input[type="file"] { display: none; }
-
-        /* Webcam */
-        #webcam-wrapper {
-            position: fixed; bottom: clamp(8px, 2vw, 15px); left: clamp(8px, 2vw, 15px);
-            width: clamp(100px, 25vw, 200px); aspect-ratio: 4/3;
-            border: 2px solid rgba(255,105,180,0.5); border-radius: 10px;
-            overflow: hidden; z-index: 100; background: #000;
-        }
-        #webcam-feed { width: 100%; height: 100%; object-fit: cover; }
-        #debug-info {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.8); color: #ff69b4; font-size: clamp(8px, 2vw, 11px);
-            padding: 3px 6px; text-align: center; font-family: monospace;
-        }
 
         /* Mode Display */
         #mode-display {
@@ -96,7 +69,7 @@
         #mode-display .label { color: #ff69b4; font-size: clamp(8px, 2vw, 10px); letter-spacing: 2px; margin-bottom: 3px; }
         #mode-display .mode { color: #ffeaa7; font-size: clamp(14px, 4vw, 20px); font-weight: 600; }
 
-        /* Gesture Guide - Both Desktop & Mobile */
+        /* Gesture Guide */
         #gesture-guide {
             position: fixed; 
             bottom: clamp(70px, 18vw, 100px); 
@@ -111,9 +84,6 @@
             align-items: center;
             gap: clamp(8px, 3vw, 20px);
             backdrop-filter: blur(10px);
-        }
-        #gesture-guide h4 { 
-            display: none;
         }
         .g-item { 
             display: flex; 
@@ -162,12 +132,42 @@
         }
         #photo-preview.show { opacity: 1; }
 
+        /* Connection Status */
+        #connection-status {
+            position: fixed; top: clamp(8px, 2vw, 15px); left: clamp(8px, 2vw, 15px);
+            background: rgba(0,0,0,0.8); border: 1px solid #ff69b4;
+            padding: 5px 10px; border-radius: 15px; z-index: 100;
+            font-size: clamp(8px, 2vw, 10px); color: #ff69b4;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #ff3333; animation: blink 1s infinite;
+        }
+        .status-dot.connected {
+            background: #33ff33; animation: none;
+        }
+        @keyframes blink { 0%, 50%, 100% { opacity: 1; } 25%, 75% { opacity: 0.3; } }
+
+        /* Help Button */
+        #help-btn {
+            position: fixed; bottom: clamp(8px, 2vw, 15px); left: clamp(8px, 2vw, 15px);
+            background: rgba(255,105,180,0.3); border: 1px solid #ff69b4;
+            color: #ff69b4; width: clamp(35px, 8vw, 45px); height: clamp(35px, 8vw, 45px);
+            border-radius: 50%; font-size: clamp(16px, 4vw, 20px); cursor: pointer; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s;
+        }
+        #help-btn:hover {
+            background: #ff69b4; color: #000; transform: scale(1.1);
+        }
+
         /* Mobile Instructions */
         #mobile-help {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.95); border: 2px solid #ff69b4;
+            background: rgba(0,0,0,0.98); border: 2px solid #ff69b4;
             padding: clamp(20px, 5vw, 30px); border-radius: 15px; z-index: 300;
-            text-align: center; max-width: 90vw; display: none;
+            text-align: center; max-width: 90vw; display: none; max-height: 90vh; overflow-y: auto;
         }
         #mobile-help.show { display: block; }
         #mobile-help h3 { color: #ff69b4; font-family: 'Great Vibes', cursive; font-size: clamp(24px, 6vw, 32px); margin-bottom: 15px; }
@@ -175,12 +175,10 @@
         #mobile-help .close-btn {
             margin-top: 20px; background: #ff69b4; border: none; color: white;
             padding: 10px 30px; border-radius: 20px; font-size: clamp(12px, 3vw, 14px); cursor: pointer;
+            transition: transform 0.3s;
         }
-        #help-btn {
-            position: fixed; top: clamp(8px, 2vw, 15px); left: clamp(8px, 2vw, 15px);
-            background: rgba(255,105,180,0.3); border: 1px solid #ff69b4;
-            color: #ff69b4; width: clamp(30px, 8vw, 40px); height: clamp(30px, 8vw, 40px);
-            border-radius: 50%; font-size: clamp(14px, 4vw, 18px); cursor: pointer; z-index: 100;
+        #mobile-help .close-btn:hover {
+            transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
@@ -188,6 +186,7 @@
                 flex-wrap: wrap;
                 justify-content: center;
                 gap: 5px;
+                max-width: 95vw;
             }
             
             .gesture-btn {
@@ -205,7 +204,6 @@
             }
             .g-icon { font-size: 20px; }
             .g-text { font-size: 7px; }
-            #webcam-wrapper { width: 90px; }
             #mode-display { padding: 6px 10px; }
             #mode-display .mode { font-size: 12px; }
         }
@@ -218,13 +216,12 @@
 <body>
     <div id="loader"><div class="spinner"></div><div class="loader-text">Loading your gift...</div></div>
     
-    <div id="camera-prompt">
-        <h2>Camera Permission</h2>
-        <p>මේකෙදි hand gestures use කරන්න camera permission ඕනේ. Allow කරන්න! 📷✨</p>
-        <button onclick="requestCamera()">Allow Camera 📸</button>
-    </div>
-
     <div id="canvas-container"></div>
+
+    <div id="connection-status">
+        <div class="status-dot" id="status-indicator"></div>
+        <span id="status-text">Connecting...</span>
+    </div>
 
     <div id="title">
         <h1>Merry Christmas</h1>
@@ -234,26 +231,20 @@
     <div class="controls">
         <label class="upload-btn">📁 Add Photos<input type="file" id="file-input" multiple accept="image/*"></label>
         <button class="gesture-btn" onclick="triggerGesture('FIST')">✊ Tree</button>
-        <button class="gesture-btn" onclick="triggerGesture('OPEN')">✋ Scatter+Photo</button>
-        <button class="gesture-btn" onclick="triggerGesture('PINCH')">🤏 Next Photo</button>
-        <button class="gesture-btn" onclick="triggerGesture('PEACE')">✌️ Heart+Name</button>
-        <button class="gesture-btn" onclick="triggerGesture('THUMBS_UP')">👍 Auto Play</button>
+        <button class="gesture-btn" onclick="triggerGesture('OPEN')">✋ Scatter</button>
+        <button class="gesture-btn" onclick="triggerGesture('PINCH')">🤏 Next</button>
+        <button class="gesture-btn" onclick="triggerGesture('PEACE')">✌️ Heart</button>
+        <button class="gesture-btn" onclick="triggerGesture('THUMBS_UP')">👍 Auto</button>
     </div>
 
     <button id="help-btn" onclick="toggleHelp()">?</button>
 
     <div id="gesture-guide">
-        <h4>✨ GESTURES</h4>
         <div class="g-item"><span class="g-icon">✊</span><span class="g-text">Tree</span></div>
-        <div class="g-item"><span class="g-icon">✋</span><span class="g-text">Scatter+Photo</span></div>
-        <div class="g-item"><span class="g-icon">🤏</span><span class="g-text">Next Photo</span></div>
-        <div class="g-item"><span class="g-icon">✌️</span><span class="g-text">Heart+Name</span></div>
-        <div class="g-item"><span class="g-icon">👍</span><span class="g-text">Auto Play</span></div>
-    </div>
-
-    <div id="webcam-wrapper">
-        <img id="webcam-feed" src="" alt="Camera">
-        <div id="debug-info">Camera loading...</div>
+        <div class="g-item"><span class="g-icon">✋</span><span class="g-text">Scatter</span></div>
+        <div class="g-item"><span class="g-icon">🤏</span><span class="g-text">Next</span></div>
+        <div class="g-item"><span class="g-icon">✌️</span><span class="g-text">Heart</span></div>
+        <div class="g-item"><span class="g-icon">👍</span><span class="g-text">Auto</span></div>
     </div>
 
     <div id="mode-display">
@@ -271,17 +262,22 @@
     <div id="mobile-help">
         <h3>How to Use ✨</h3>
         <div class="instruction"><span>✊</span> Fist = Christmas Tree</div>
-        <div class="instruction"><span>✋</span> Open = Scatter + Random Photo</div>
+        <div class="instruction"><span>✋</span> Open Hand = Scatter + Random Photo</div>
         <div class="instruction"><span>🤏</span> Pinch = Next Photo</div>
         <div class="instruction"><span>✌️</span> Peace = Heart + "Hemesha"</div>
         <div class="instruction"><span>👍</span> Thumbs Up = Auto Slideshow</div>
+        <p style="color: #aaa; font-size: 12px; margin-top: 15px;">Use the buttons at the top to control!</p>
         <button class="close-btn" onclick="toggleHelp()">Got it! ❤️</button>
     </div>
 
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     
     <script>
-        // Gesture button functions
+        // Global Socket & State
+        let socket;
+        let isConnected = false;
+
+        // Gesture trigger function
         window.triggerGesture = function(gesture) {
             const data = {
                 gesture: gesture,
@@ -292,25 +288,11 @@
                 }
             };
             
-            if (typeof socket !== 'undefined') {
+            if (socket && isConnected) {
                 socket.emit('gesture_input', data);
-                console.log(`Gesture sent: ${gesture}`);
+                console.log(`✅ Gesture sent: ${gesture}`);
             } else {
-                console.log(`Socket not connected. Gesture: ${gesture}`);
-            }
-        };
-
-        // Camera permission
-        window.requestCamera = async function() {
-            try {
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('camera-prompt').classList.add('hide');
-                document.getElementById('webcam-feed').src = '/video_feed';
-                console.log('Camera access granted');
-            } catch(e) {
-                alert('Camera permission denied. Use buttons instead!');
-                document.getElementById('camera-prompt').classList.add('hide');
-                document.getElementById('debug-info').innerText = 'Use buttons below ✨';
+                console.log(`⚠️ Not connected. Gesture: ${gesture}`);
             }
         };
 
@@ -318,14 +300,69 @@
             document.getElementById('mobile-help').classList.toggle('show');
         };
 
-        // Auto-hide camera prompt if no camera
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                if (!document.getElementById('camera-prompt').classList.contains('hide')) {
-                    document.getElementById('camera-prompt').classList.add('hide');
-                    document.getElementById('debug-info').innerText = 'Use buttons for gestures';
+        // Initialize Socket Connection
+        function initSocket() {
+            socket = io({
+                transports: ['websocket', 'polling'],
+                upgrade: true,
+                reconnectionAttempts: 10,
+                reconnectionDelay: 1000,
+                timeout: 20000
+            });
+
+            socket.on('connect', () => {
+                isConnected = true;
+                console.log('✅ Socket connected!');
+                document.getElementById('status-indicator').classList.add('connected');
+                document.getElementById('status-text').innerText = 'Connected';
+                setTimeout(() => document.getElementById('loader').classList.add('hide'), 1500);
+            });
+
+            socket.on('disconnect', () => {
+                isConnected = false;
+                console.log('❌ Socket disconnected');
+                document.getElementById('status-indicator').classList.remove('connected');
+                document.getElementById('status-text').innerText = 'Disconnected';
+            });
+
+            socket.on('gesture_update', (data) => {
+                console.log('📡 Received update:', data);
+                
+                // Update mode display
+                document.getElementById('current-mode').innerText = data.mode;
+
+                // Heart overlay
+                const heartOverlay = document.getElementById('heart-overlay');
+                if (data.mode === 'HEART') {
+                    heartOverlay.classList.add('show');
+                } else {
+                    heartOverlay.classList.remove('show');
                 }
-            }, 3000);
+
+                // Photo preview
+                const photoPreview = document.getElementById('photo-preview');
+                if (data.mode === 'SCATTER' || data.mode === 'AUTOPLAY' || data.mode === 'NEXT') {
+                    // Photo will be shown by Three.js scene
+                } else if (data.mode === 'TREE' || data.mode === 'HEART') {
+                    photoPreview.classList.remove('show');
+                }
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('Connection error:', error);
+            });
+        }
+
+        // Auto-hide loader on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initSocket();
+            
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (!loader.classList.contains('hide')) {
+                    loader.classList.add('hide');
+                }
+            }, 5000);
         });
     </script>
     
@@ -362,56 +399,33 @@
         let scene, camera, renderer, composer, mainGroup, clock, particleSystem = [], photoMeshGroup;
         let previousMode = 'TREE';
         let photoUrls = [...PRESET_IMAGES];
-        let cameraReady = false;
 
-        // Socket.IO
-        const socket = io();
-        
-        socket.on('connect', () => {
-            document.getElementById('debug-info').innerText = '✨ Ready!';
-            setTimeout(() => document.getElementById('loader').classList.add('hide'), 1500);
-        });
+        // Listen to socket updates
+        if (typeof socket !== 'undefined') {
+            socket.on('gesture_update', (data) => {
+                previousMode = STATE.mode;
+                STATE.mode = data.mode;
+                STATE.hand = data.hand;
+                STATE.photoIndex = data.photoIndex;
 
-        socket.on('gesture_update', (data) => {
-            previousMode = STATE.mode;
-            STATE.mode = data.mode;
-            STATE.hand = data.hand;
-            STATE.photoIndex = data.photoIndex;
-            
-            document.getElementById('current-mode').innerText = data.mode;
-            document.getElementById('debug-info').innerText = data.hand.detected ? data.gesture : '👋 Show hand';
+                // Heart shape particles
+                if (data.mode === 'HEART' && previousMode !== 'HEART') {
+                    createHeartShape();
+                } else if (data.mode === 'TREE' && previousMode === 'HEART') {
+                    resetToTree();
+                }
 
-            // Heart overlay
-            document.getElementById('heart-overlay').classList.toggle('show', data.mode === 'HEART');
+                // Show random photo for SCATTER
+                if (data.mode === 'SCATTER' && previousMode !== 'SCATTER') {
+                    showRandomPhoto();
+                }
 
-            // Photo preview for SCATTER mode
-            if (data.mode === 'SCATTER' && previousMode !== 'SCATTER') {
-                showRandomPhoto();
-            }
-            
-            // Next photo
-            if (data.mode === 'NEXT') {
-                showPhotoByIndex(data.photoIndex);
-                STATE.mode = 'SCATTER';
-            }
-
-            // Auto play
-            if (data.mode === 'AUTOPLAY') {
-                showPhotoByIndex(data.photoIndex);
-            }
-
-            // Hide photo when tree mode
-            if (data.mode === 'TREE' || data.mode === 'HEART') {
-                document.getElementById('photo-preview').classList.remove('show');
-            }
-
-            // Heart shape particles
-            if (data.mode === 'HEART' && previousMode !== 'HEART') {
-                createHeartShape();
-            } else if (data.mode === 'TREE' && previousMode === 'HEART') {
-                resetToTree();
-            }
-        });
+                // Show specific photo for NEXT/AUTOPLAY
+                if (data.mode === 'NEXT' || data.mode === 'AUTOPLAY') {
+                    showPhotoByIndex(data.photoIndex);
+                }
+            });
+        }
 
         function showRandomPhoto() {
             if (photoUrls.length > 0) {
